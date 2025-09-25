@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Animasi Modern</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            transition: background 1s ease;
+        }
+
+        .calculator {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            width: 340px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .calculator:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .display-container {
+            position: relative;
+            padding: 25px 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+
+        .display {
+            color: white;
+            text-align: right;
+            font-size: 2.5rem;
+            font-weight: 300;
+            height: 60px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .history {
+            color: rgba(255, 255, 255, 0.7);
+            text-align: right;
+            font-size: 1rem;
+            height: 20px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-gap: 15px;
+            padding: 25px;
+        }
+
+        .btn {
+            border: none;
+            outline: none;
+            border-radius: 20px;
+            height: 70px;
+            font-size: 1.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            color: white;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-number {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-number:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-operator {
+            background: rgba(255, 107, 107, 0.7);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-operator:hover {
+            background: rgba(255, 107, 107, 0.9);
+        }
+
+        .btn-equals {
+            background: rgba(72, 187, 120, 0.7);
+            border: 1px solid rgba(72, 187, 120, 0.3);
+            grid-column: span 2;
+            border-radius: 20px;
+        }
+
+        .btn-equals:hover {
+            background: rgba(72, 187, 120, 0.9);
+        }
+
+        .btn-clear, .btn-delete {
+            background: rgba(255, 71, 87, 0.7);
+            border: 1px solid rgba(255, 71, 87, 0.3);
+        }
+
+        .btn-clear:hover, .btn-delete:hover {
+            background: rgba(255, 71, 87, 0.9);
+        }
+
+        .btn-other {
+            background: rgba(108, 92, 231, 0.7);
+            border: 1px solid rgba(108, 92, 231, 0.3);
+        }
+
+        .btn-other:hover {
+            background: rgba(108, 92, 231, 0.9);
+        }
+
+        /* Animasi saat tombol diklik */
+        @keyframes buttonClick {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            }
+            50% {
+                transform: scale(0.92);
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            }
+        }
+
+        .btn-animate {
+            animation: buttonClick 0.3s ease;
+        }
+
+        /* Animasi ripple effect */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        }
+
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* Theme toggle */
+        .theme-toggle {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(30deg);
+        }
+
+        .theme-toggle i {
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        /* Dark theme */
+        body.dark-theme {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+        }
+
+        body.dark-theme .calculator {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        /* Responsivitas */
+        @media (max-width: 380px) {
+            .calculator {
+                width: 300px;
+            }
+            
+            .btn {
+                height: 60px;
+                font-size: 1.3rem;
+            }
+            
+            .display {
+                font-size: 2rem;
+                height: 50px;
+            }
+        }
+
+        /* Floating particles background */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            animation: float 15s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(100px);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    
+    <div class="calculator">
+        <div class="theme-toggle" id="themeToggle">
+            <i>☀️</i>
+        </div>
+        <div class="display-container">
+            <div class="history" id="history"></div>
+            <div class="display" id="display">0</div>
+        </div>
+        <div class="buttons">
+            <button class="btn btn-clear" onclick="clearDisplay()">C</button>
+            <button class="btn btn-delete" onclick="deleteLast()">⌫</button>
+            <button class="btn btn-operator" onclick="appendToDisplay('%')">%</button>
+            <button class="btn btn-operator" onclick="appendToDisplay('/')">/</button>
+            
+            <button class="btn btn-number" onclick="appendToDisplay('7')">7</button>
+            <button class="btn btn-number" onclick="appendToDisplay('8')">8</button>
+            <button class="btn btn-number" onclick="appendToDisplay('9')">9</button>
+            <button class="btn btn-operator" onclick="appendToDisplay('*')">×</button>
+            
+            <button class="btn btn-number" onclick="appendToDisplay('4')">4</button>
+            <button class="btn btn-number" onclick="appendToDisplay('5')">5</button>
+            <button class="btn btn-number" onclick="appendToDisplay('6')">6</button>
+            <button class="btn btn-operator" onclick="appendToDisplay('-')">-</button>
+            
+            <button class="btn btn-number" onclick="appendToDisplay('1')">1</button>
+            <button class="btn btn-number" onclick="appendToDisplay('2')">2</button>
+            <button class="btn btn-number" onclick="appendToDisplay('3')">3</button>
+            <button class="btn btn-operator" onclick="appendToDisplay('+')">+</button>
+            
+            <button class="btn btn-other" onclick="appendToDisplay('0')">0</button>
+            <button class="btn btn-other" onclick="appendToDisplay('.')">.</button>
+            <button class="btn btn-equals" onclick="calculate()">=</button>
+        </div>
+    </div>
+
+    <script>
+        const display = document.getElementById('display');
+        const history = document.getElementById('history');
+        const themeToggle = document.getElementById('themeToggle');
+        const particlesContainer = document.getElementById('particles');
+        let currentInput = '0';
+        let shouldResetDisplay = false;
+        let isDarkTheme = false;
+
+        // Create floating particles
+        function createParticles() {
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                const size = Math.random() * 5 + 2;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.animationDuration = `${Math.random() * 10 + 10}s`;
+                particle.style.animationDelay = `${Math.random() * 5}s`;
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Toggle theme
+        themeToggle.addEventListener('click', function() {
+            isDarkTheme = !isDarkTheme;
+            document.body.classList.toggle('dark-theme', isDarkTheme);
+            themeToggle.innerHTML = isDarkTheme ? '🌙' : '☀️';
+            
+            // Add animation to theme toggle
+            themeToggle.style.transform = 'rotate(180deg)';
+            setTimeout(() => {
+                themeToggle.style.transform = 'rotate(0deg)';
+            }, 300);
+        });
+
+        // Ripple effect
+        document.querySelectorAll('.btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                ripple.classList.add('ripple');
+                
+                const diameter = Math.max(button.clientWidth, button.clientHeight);
+                const radius = diameter / 2;
+                
+                ripple.style.width = ripple.style.height = `${diameter}px`;
+                ripple.style.left = `${e.clientX - button.getBoundingClientRect().left - radius}px`;
+                ripple.style.top = `${e.clientY - button.getBoundingClientRect().top - radius}px`;
+                
+                button.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+
+        function updateDisplay() {
+            display.textContent = currentInput;
+        }
+
+        function appendToDisplay(value) {
+            // Animasi tombol
+            event.target.classList.add('btn-animate');
+            setTimeout(() => {
+                event.target.classList.remove('btn-animate');
+            }, 300);
+            
+            if (currentInput === '0' || shouldResetDisplay) {
+                currentInput = value;
+                shouldResetDisplay = false;
+            } else {
+                currentInput += value;
+            }
+            updateDisplay();
+        }
+
+        function clearDisplay() {
+            // Animasi tombol
+            event.target.classList.add('btn-animate');
+            setTimeout(() => {
+                event.target.classList.remove('btn-animate');
+            }, 300);
+            
+            currentInput = '0';
+            history.textContent = '';
+            updateDisplay();
+        }
+
+        function deleteLast() {
+            // Animasi tombol
+            event.target.classList.add('btn-animate');
+            setTimeout(() => {
+                event.target.classList.remove('btn-animate');
+            }, 300);
+            
+            if (currentInput.length === 1) {
+                currentInput = '0';
+            } else {
+                currentInput = currentInput.slice(0, -1);
+            }
+            updateDisplay();
+        }
+
+        function calculate() {
+            // Animasi tombol
+            event.target.classList.add('btn-animate');
+            setTimeout(() => {
+                event.target.classList.remove('btn-animate');
+            }, 300);
+            
+            try {
+                // Simpan ekspresi ke history
+                history.textContent = currentInput + ' =';
+                
+                // Mengganti simbol × dengan * untuk evaluasi
+                let expression = currentInput.replace(/×/g, '*');
+                
+                // Menghitung persentase
+                expression = expression.replace(/(\d+)%/g, function(match, p1) {
+                    return p1 / 100;
+                });
+                
+                currentInput = eval(expression).toString();
+            } catch (error) {
+                currentInput = 'Error';
+            }
+            shouldResetDisplay = true;
+            updateDisplay();
+        }
+
+        // Event listener untuk keyboard support
+        document.addEventListener('keydown', function(event) {
+            if (/[\d\+\-\*\/\.]/.test(event.key)) {
+                appendToDisplay(event.key);
+            } else if (event.key === 'Enter' || event.key === '=') {
+                calculate();
+            } else if (event.key === 'Escape') {
+                clearDisplay();
+            } else if (event.key === 'Backspace') {
+                deleteLast();
+            }
+        });
+
+        // Initialize particles
+        createParticles();
+    </script>
+</body>
+</html>
